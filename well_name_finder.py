@@ -13,7 +13,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
     raw = pd.read_pickle('WellGenData.pkl')
     df = raw.copy()
     rani = random.randint(0, len(df))
-    #rani = 24526
+    #rani = 27099
     
     # Start your game here, replace enter some text with a question you want to ask the player
     game_over = False
@@ -28,7 +28,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
         
         wellname = wellcomp
         
-        input_wn = input('Try altering this wellname {}.\ninput: '.format(wellname)) # allows player to enter some text or a number
+        input_wn = input('Try altering this wellname to fail up the program: {}.\ninput: '.format(wellname)) # allows player to enter some text or a number
         print('index: '+str(rani))
         
         think = ['Thinking','.','.','.']
@@ -103,9 +103,9 @@ if __name__ == '__main__': # this line ensures we are in the main application
             if not comp_check.empty and found<=0:
                 for indx, val in comp_check.iteritems():
                     if len(val) == len(temp_wn):
-                        print('Well Comp match found:')
+                        print('Well Comp Name match found:')
                         print (indx, comp_check_raw[indx])
-                        print('You lose! Game Over')
+                        print('\nYou fail! Game Over')
                         found +=1
                     else:
                         pass
@@ -113,9 +113,9 @@ if __name__ == '__main__': # this line ensures we are in the main application
             if not common_check.empty and found<=0:
                 for indx, val in common_check.iteritems():
                     if len(val) == len(temp_wn):
-                        print('Well Common match found:')
+                        print('Well Common Name match found:')
                         print (indx, common_check_raw[indx])
-                        print('You lose! Game Over')
+                        print('\nYou fail! Game Over')
                         found +=1
                     else:
                         pass
@@ -123,9 +123,9 @@ if __name__ == '__main__': # this line ensures we are in the main application
             if not auto_check.empty and found<=0:
                 for indx, val in auto_check.iteritems():
                     if len(val) == len(temp_wn):
-                        print('Well Auto match found:')
+                        print('Well Auto Name match found:')
                         print (indx, auto_check_raw[indx])
-                        print('You lose! Game Over')
+                        print('\nYou fail! Game Over')
                         found +=1
                     else:
                         pass
