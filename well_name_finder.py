@@ -38,7 +38,6 @@ if __name__ == '__main__': # this line ensures we are in the main application
         #Clean Master Reference
         df.fillna(value='EMPTY', inplace=True)
         df.apply(lambda x: x.astype(str).str.upper())
-        
         subreplacements = {
           '-RD*': '',
           '_RD*': '',
@@ -50,12 +49,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
           '_ST*': '',
           ' ST*': '',
           'SECTION': '',
-          'SEC': '',
-          #'-': '',
-          #'_': '',
-          #' ': '',
-          #'/': '',
-          '[^0-9a-zA-Z]+':''
+          'SEC': ''
           }
         replacements = {
            'WELL_COMP_NAME': subreplacements,
@@ -63,21 +57,27 @@ if __name__ == '__main__': # this line ensures we are in the main application
            'WELL_AUTO_NAME': subreplacements,
         }
         df.replace(replacements, regex=True, inplace=True)
+        df['WELL_COMP_NAME'].apply(
+                lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
+        df['WELL_COMMON_NAME'].apply(
+                lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
+        df['WELL_AUTO_NAME'].apply(
+                lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
     
         # Check the input with an if statement
         if input_wn == '':
             print('Nothing given')
         else:
             
-            temp_wn = input_wn
+            temp_wn = input_wn.upper()
             for k,v in subreplacements.items():
                 if k in input_wn:
-                    #temp_wn = temp_wn.upper().replace(k,v)
-                    temp_wn = re.sub(k, v, temp_wn.upper())
+                    temp_wn = temp_wn.replace(k,v)
+            temp_wn = re.sub('[^0-9a-zA-Z]+', '', temp_wn)
 
-            comp_check = raw['WELL_COMP_NAME'][df['WELL_COMP_NAME'].str.contains(temp_wn)]
-            common_check = raw['WELL_COMMON_NAME'][df['WELL_COMMON_NAME'].str.contains(temp_wn)]
-            auto_check = raw['WELL_AUTO_NAME'][df['WELL_AUTO_NAME'].str.contains(temp_wn)]
+            comp_check = df['WELL_COMP_NAME'][df['WELL_COMP_NAME'].str.contains(temp_wn)]
+            common_check = df['WELL_COMMON_NAME'][df['WELL_COMMON_NAME'].str.contains(temp_wn)]
+            auto_check = df['WELL_AUTO_NAME'][df['WELL_AUTO_NAME'].str.contains(temp_wn)]
 
             if not comp_check.empty:
                 print('Well Comp Match:')
