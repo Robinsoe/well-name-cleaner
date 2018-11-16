@@ -12,7 +12,8 @@ if __name__ == '__main__': # this line ensures we are in the main application
     
     raw = pd.read_pickle('WellGenData.pkl')
     df = raw.copy()
-    rani = random.randint(0, len(df))
+    #rani = random.randint(0, len(df))
+    rani = 4842
     
     # Start your game here, replace enter some text with a question you want to ask the player
     game_over = False
@@ -27,7 +28,8 @@ if __name__ == '__main__': # this line ensures we are in the main application
         
         wellname = wellcomp
         
-        input_wn = input('Slightly alter this wellname {}: '.format(wellname)) # allows player to enter some text or a number
+        input_wn = input('Try altering this wellname {}.\ninput: '.format(wellname)) # allows player to enter some text or a number
+        print(rani)
         
         think = ['Thinking','.','.','.']
         for i in range(len(think)):
@@ -71,7 +73,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
             
             temp_wn = input_wn.upper()
             for k,v in subreplacements.items():
-                if k in input_wn:
+                if temp_wn.str.contains(k):
                     temp_wn = temp_wn.replace(k,v)
             temp_wn = re.sub('[^0-9a-zA-Z]+', '', temp_wn)
 
@@ -79,27 +81,43 @@ if __name__ == '__main__': # this line ensures we are in the main application
             common_check = df['WELL_COMMON_NAME'][df['WELL_COMMON_NAME'].str.contains(temp_wn)]
             auto_check = df['WELL_AUTO_NAME'][df['WELL_AUTO_NAME'].str.contains(temp_wn)]
 
-            if not comp_check.empty:
-                print('Well Comp Match:')
+            found = 0
+            
+            if not comp_check.empty and found<=0:
                 for indx, val in comp_check.iteritems():
-                    print (indx, val)
+                    if len(val) == len(temp_wn):
+                        print('Well Comp match found:')
+                        print (indx, val)
+                        print('You lose! Game Over')
+                        found +=1
+                    else:
+                        pass
                
-            elif not common_check.empty:
-                print('Well Common Match:')
+            if not common_check.empty and found<=0:
                 for indx, val in common_check.iteritems():
-                    print (indx, val)    
+                    if len(val) == len(temp_wn):
+                        print('Well Common match found:')
+                        print (indx, val)
+                        print('You lose! Game Over')
+                        found +=1
+                    else:
+                        pass
                 
-            elif not auto_check.empty:
-                print('Well Auto Match:')
+            if not auto_check.empty and found<=0:
                 for indx, val in auto_check.iteritems():
-                    print (indx, val)
-                
-            else:
-                print('No Match')
+                    if len(val) == len(temp_wn):
+                        print('Well Auto match found:')
+                        print (indx, val)
+                        print('You lose! Game Over')
+                        found +=1
+                    else:
+                        pass
+            
+            if found<=0:   
+                print('No Match. You Win! Game Over')
 
             game_over = True
-            print('Game Over')
-
+            
         if tries == 5:
             game_over = True
             print('You took too long, Game Over')
