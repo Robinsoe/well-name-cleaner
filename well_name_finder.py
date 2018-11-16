@@ -12,8 +12,8 @@ if __name__ == '__main__': # this line ensures we are in the main application
     
     raw = pd.read_pickle('WellGenData.pkl')
     df = raw.copy()
-    #rani = random.randint(0, len(df))
-    rani = 4842
+    rani = random.randint(0, len(df))
+    #rani = 24526
     
     # Start your game here, replace enter some text with a question you want to ask the player
     game_over = False
@@ -29,7 +29,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
         wellname = wellcomp
         
         input_wn = input('Try altering this wellname {}.\ninput: '.format(wellname)) # allows player to enter some text or a number
-        print(rani)
+        print('index: '+str(rani))
         
         think = ['Thinking','.','.','.']
         for i in range(len(think)):
@@ -41,30 +41,39 @@ if __name__ == '__main__': # this line ensures we are in the main application
         df.fillna(value='EMPTY', inplace=True)
         df.apply(lambda x: x.astype(str).str.upper())
         subreplacements = {
-          '-RD*': '',
-          '_RD*': '',
-          ' RD*': '',
-          '-R*': '',
-          '_R*': '',
-          ' R*': '',
-          '-ST*': '',
-          '_ST*': '',
-          ' ST*': '',
-          'SECTION': '',
-          'SEC': ''
-          }
+            'SECTION': '',
+            'SEC': '',
+            ' ': ''
+            }
+        
+        subreplacements2 = {
+            '_RD.': '',
+            '_R.': '',
+            '_ST.': '',
+            '-RD.': '',
+            '-R.': '',
+            '-ST.': '',
+            ' RD.': '',
+            ' R.': '',
+            ' ST.': '',
+            }
+        
         replacements = {
            'WELL_COMP_NAME': subreplacements,
            'WELL_COMMON_NAME': subreplacements,
            'WELL_AUTO_NAME': subreplacements,
         }
+        
         df.replace(replacements, regex=True, inplace=True)
-        df['WELL_COMP_NAME'].apply(
-                lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
-        df['WELL_COMMON_NAME'].apply(
-                lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
-        df['WELL_AUTO_NAME'].apply(
-                lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
+        
+        for k,v in subreplacements2.items():
+            df['WELL_COMP_NAME']=df['WELL_COMP_NAME'].apply(lambda x: re.sub(k, v, x))
+            df['WELL_COMMON_NAME']=df['WELL_COMMON_NAME'].apply(lambda x: re.sub(k, v, x))
+            df['WELL_AUTO_NAME']=df['WELL_AUTO_NAME'].apply(lambda x: re.sub(k, v, x))
+            
+        df['WELL_COMP_NAME']=df['WELL_COMP_NAME'].apply(lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
+        df['WELL_COMMON_NAME']=df['WELL_COMMON_NAME'].apply(lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
+        df['WELL_AUTO_NAME']=df['WELL_AUTO_NAME'].apply(lambda x: re.sub('[^0-9a-zA-Z]+', '', x))
     
         # Check the input with an if statement
         if input_wn == '':
@@ -73,13 +82,21 @@ if __name__ == '__main__': # this line ensures we are in the main application
             
             temp_wn = input_wn.upper()
             for k,v in subreplacements.items():
-                if temp_wn.str.contains(k):
+                if k in temp_wn:
                     temp_wn = temp_wn.replace(k,v)
+            
+            for k,v in subreplacements2.items():
+                temp_wn = re.sub(k,v, temp_wn)
+            
             temp_wn = re.sub('[^0-9a-zA-Z]+', '', temp_wn)
 
             comp_check = df['WELL_COMP_NAME'][df['WELL_COMP_NAME'].str.contains(temp_wn)]
             common_check = df['WELL_COMMON_NAME'][df['WELL_COMMON_NAME'].str.contains(temp_wn)]
             auto_check = df['WELL_AUTO_NAME'][df['WELL_AUTO_NAME'].str.contains(temp_wn)]
+
+            comp_check_raw = raw['WELL_COMP_NAME'][df['WELL_COMP_NAME'].str.contains(temp_wn)]
+            common_check_raw = raw['WELL_COMMON_NAME'][df['WELL_COMMON_NAME'].str.contains(temp_wn)]
+            auto_check_raw = raw['WELL_AUTO_NAME'][df['WELL_AUTO_NAME'].str.contains(temp_wn)]
 
             found = 0
             
@@ -87,7 +104,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
                 for indx, val in comp_check.iteritems():
                     if len(val) == len(temp_wn):
                         print('Well Comp match found:')
-                        print (indx, val)
+                        print (indx, comp_check_raw[indx])
                         print('You lose! Game Over')
                         found +=1
                     else:
@@ -97,7 +114,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
                 for indx, val in common_check.iteritems():
                     if len(val) == len(temp_wn):
                         print('Well Common match found:')
-                        print (indx, val)
+                        print (indx, common_check_raw[indx])
                         print('You lose! Game Over')
                         found +=1
                     else:
@@ -107,7 +124,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
                 for indx, val in auto_check.iteritems():
                     if len(val) == len(temp_wn):
                         print('Well Auto match found:')
-                        print (indx, val)
+                        print (indx, auto_check_raw[indx])
                         print('You lose! Game Over')
                         found +=1
                     else:
