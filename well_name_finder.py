@@ -4,11 +4,15 @@
 
 import pandas as pd
 import random
+from sys import stdout
+from time import sleep
+import re
 
 if __name__ == '__main__': # this line ensures we are in the main application
     
-    data = pd.read_pickle('WellGenData.pkl')
-    rani = random.randint(0, len(data))
+    raw = pd.read_pickle('WellGenData.pkl')
+    df = raw.copy()
+    rani = random.randint(0, len(df))
     
     # Start your game here, replace enter some text with a question you want to ask the player
     game_over = False
@@ -16,16 +20,24 @@ if __name__ == '__main__': # this line ensures we are in the main application
     while not game_over:
         tries += 1
         
-        d = data.iloc[rani]
+        d = df.iloc[rani]
         wellcomp = d['WELL_COMP_NAME']
+        wellcommon = d['WELL_COMMON_NAME']
         wellauto = d['WELL_AUTO_NAME']
-        wellcom = d['WELL_COMMON_NAME']
+        
         wellname = wellcomp
         
-        wn = input('Slightly miss arange this wellname {}: '.format(wellname)) # allows player to enter some text or a number
-        print('You entered {}'.format(wn))
+        input_wn = input('Slightly alter this wellname {}: '.format(wellname)) # allows player to enter some text or a number
         
-        data.fillna(value='Empty', inplace=True)
+        think = ['Thinking','.','.','.']
+        for i in range(len(think)):
+            print(think[i], sep=' ', end='', flush=True)
+            sleep(1)
+        print('\n')
+        
+        #Clean Master Reference
+        df.fillna(value='EMPTY', inplace=True)
+        df.apply(lambda x: x.astype(str).str.upper())
         
         subreplacements = {
           '-RD*': '',
@@ -34,33 +46,62 @@ if __name__ == '__main__': # this line ensures we are in the main application
           '-R*': '',
           '_R*': '',
           ' R*': '',
-          '-': '',
-          '_': '',
-          ' ': '',
+          '-ST*': '',
+          '_ST*': '',
+          ' ST*': '',
           'SECTION': '',
           'SEC': '',
-          '/': ''
+          #'-': '',
+          #'_': '',
+          #' ': '',
+          #'/': '',
+          '[^0-9a-zA-Z]+':''
           }
-    
         replacements = {
            'WELL_COMP_NAME': subreplacements,
-           'WELL_AUTO_NAME': subreplacements,
            'WELL_COMMON_NAME': subreplacements,
+           'WELL_AUTO_NAME': subreplacements,
         }
-        
-        data.replace(replacements, regex=True, inplace=True)
+        df.replace(replacements, regex=True, inplace=True)
     
         # Check the input with an if statement
-        if wn == '':
+        if input_wn == '':
             print('Nothing given')
         else:
             
-            temp = wn.replace(subreplacements)
+            temp_wn = input_wn
+            for k,v in subreplacements.items():
+                if k in input_wn:
+                    #temp_wn = temp_wn.upper().replace(k,v)
+                    temp_wn = re.sub(k, v, temp_wn.upper())
 
-            print('do something else')
+            comp_check = raw['WELL_COMP_NAME'][df['WELL_COMP_NAME'].str.contains(temp_wn)]
+            common_check = raw['WELL_COMMON_NAME'][df['WELL_COMMON_NAME'].str.contains(temp_wn)]
+            auto_check = raw['WELL_AUTO_NAME'][df['WELL_AUTO_NAME'].str.contains(temp_wn)]
+
+            if not comp_check.empty:
+                print('Well Comp Match:')
+                for indx, val in comp_check.iteritems():
+                    print (indx, val)
+               
+            elif not common_check.empty:
+                print('Well Common Match:')
+                for indx, val in common_check.iteritems():
+                    print (indx, val)    
+                
+            elif not auto_check.empty:
+                print('Well Auto Match:')
+                for indx, val in auto_check.iteritems():
+                    print (indx, val)
+                
+            else:
+                print('No Match')
+
+            game_over = True
+            print('Game Over')
 
         if tries == 5:
             game_over = True
-            print('You took too long, game over')
+            print('You took too long, Game Over')
 
         # Your task: make a 2-3 step text game with the starting code up above and have your neighbor try playing it
