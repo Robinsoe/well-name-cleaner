@@ -13,7 +13,7 @@ if __name__ == '__main__': # this line ensures we are in the main application
     raw = pd.read_pickle('WellGenData.pkl')
     df = raw.copy()
     rani = random.randint(0, len(df))
-    #rani = 27099
+    #rani = 24020
     
     # Start your game here, replace enter some text with a question you want to ask the player
     game_over = False
@@ -22,20 +22,24 @@ if __name__ == '__main__': # this line ensures we are in the main application
         tries += 1
         
         d = df.iloc[rani]
+        api = d['API_NO14']
         wellcomp = d['WELL_COMP_NAME']
         wellcommon = d['WELL_COMMON_NAME']
         wellauto = d['WELL_AUTO_NAME']
         
         wellname = wellcomp
         
-        input_wn = input('Try altering this wellname to fail up the program: {}.\ninput: '.format(wellname)) # allows player to enter some text or a number
-        print('index: '+str(rani))
+        input_wn = input('Try altering this wellname to fail up the program: \n {}, {}, {}, {}.\ninput: '.format(
+                wellcomp, wellcommon, wellauto, api)) # allows player to enter some text or a number
+        print('index: '+str(rani)+'\n')
         
+        '''
         think = ['Thinking','.','.','.']
         for i in range(len(think)):
             print(think[i], sep=' ', end='', flush=True)
             sleep(1)
         print('\n')
+        '''
         
         #Clean Master Reference
         df.fillna(value='EMPTY', inplace=True)
